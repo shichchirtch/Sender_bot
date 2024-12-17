@@ -12,6 +12,7 @@ from postgres_functions import (set_selector,
                                 insert_line, insert_anketa, insert_done)
 import os
 import csv
+import re
 
 
 
@@ -34,14 +35,19 @@ class ANKETA(StatesGroup):
 
 
 def fio_check(name: str) -> str:
-    if isinstance(name, str) and name.isalpha():
+    if not isinstance(name, str):
+        raise ValueError
+    pattern = r"^[a-zA-Zа-яА-ЯёЁ\s]+$"
+    res = bool(re.fullmatch(pattern, name))
+    if res:
         return name
-    raise ValueError
+    else:
+        raise ValueError
 
 
-def time_check(name: str) -> str:
-    if isinstance(name, str):
-        return name
+def time_check(time: str) -> str:
+    if isinstance(time, str):
+        return time
     raise ValueError
 
 
