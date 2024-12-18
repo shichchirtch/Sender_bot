@@ -144,7 +144,7 @@ async def online_handler(cb: CallbackQuery, widget: Button, manager: DialogManag
               f'\n\nФИО - {fio},\n\n'
               f'<b>Организация</b> - {org},\n\n'
               f'<b>Online-Offline</b> - {line},\n\n')
-    await cb.bot.send_message(chat_id=-4776092700, text=stroka)
+    await cb.bot.send_message(chat_id=-4687975968, text=stroka)
 
     # Сохраняем анкету в файл
     await append_to_file(stroka.replace("<b>", "").replace("</b>", ""))
@@ -248,7 +248,7 @@ async def anketa_finished(cb: CallbackQuery, widget: Button,
                   f'<b>Online-Offline</b> - {line},\n\n'
                   f'<b>Оплата проезда</b> - {way_pay},\n\n'
                   f'<b>Оплата Отеля</b> - {hotel_pay},\n\n')
-        await cb.bot.send_message(chat_id=-4776092700, text=stroka)
+        await cb.bot.send_message(chat_id=-4687975968, text=stroka)
     else:
         stroka = (f'Анкета Юзера {cb.from_user.first_name}, {cb.from_user.last_name}'
                   f'\n\nФИО - {fio},\n\n'
@@ -257,7 +257,7 @@ async def anketa_finished(cb: CallbackQuery, widget: Button,
                   f'<b>Фото билетов отпралвены</b>,\n\n'
                   f'Оплата проезда - {way_pay},\n\n'
                   f'Оплата Отеля - {hotel_pay},\n\n')
-        await cb.bot.send_photo(chat_id=-4776092700, photo=tickets, caption=stroka)
+        await cb.bot.send_photo(chat_id=-4687975968, photo=tickets, caption=stroka)
 # -4687975968
 
 # -4776092700 - id groupp

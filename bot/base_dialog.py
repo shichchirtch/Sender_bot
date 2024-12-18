@@ -2,7 +2,7 @@ from aiogram_dialog import Dialog, Window
 from aiogram.types import CallbackQuery, User, Message, ContentType
 from aiogram_dialog.widgets.text import Const
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.kbd import Button, Start, Group, Row
+from aiogram_dialog.widgets.kbd import Button, Start, Group, Row, Next
 from aiogram_dialog.api.entities.modes import ShowMode, StartMode
 from aiogram_dialog.widgets.input import ManagedTextInput, TextInput
 import asyncio
@@ -181,11 +181,14 @@ base_dialog = Dialog(
 
     Window(
         # Selector = 4
-        Const('Нажмите ДА когда получите Адрес Отеля'),
+        Const('Нажмите ДА когда получите Адрес Отеля,\n\n '
+              'а если Вы не подавали заявку на отель - тогда сразу переходите к следующему шагу ▶️'),
         Group(Row(
             Button(text=Const('Ещё Нет'),
                    id='bd_hotel_adress_else',
                    on_click=we_are_waiting),
+            Next(text=Const('▶️'),
+                 id='Hotel_Next'),
             Button(text=Const('Получил'),
                    id='bd_hotel_adress_yes',
                    on_click=go_to_zal),
