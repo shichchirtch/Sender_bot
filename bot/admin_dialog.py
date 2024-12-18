@@ -30,15 +30,15 @@ async def send_survey_file(callback: CallbackQuery, widget: Button, dialog_manag
         return
     # Отправляем файл администратору
     survey_file = FSInputFile(SURVEY_FILE_PATH)
-    await callback.bot.send_document(chat_id=-4687975968, document=survey_file)
+    await callback.bot.send_document(chat_id=-4776092700, document=survey_file)
 
     if os.path.exists(SURVEY_CSV_FILE_PATH):
         survey_csv_file = FSInputFile(SURVEY_CSV_FILE_PATH)
-        await callback.bot.send_document(chat_id=-4687975968,document=survey_csv_file)
+        await callback.bot.send_document(chat_id=-4776092700,document=survey_csv_file)
 
     if os.path.exists(SURVEY_CSV_FILE_PATH_OFFLINE):
         survey_csv_offline_file = FSInputFile(SURVEY_CSV_FILE_PATH_OFFLINE)
-        await callback.bot.send_document(chat_id=-4687975968, document=survey_csv_offline_file)
+        await callback.bot.send_document(chat_id=-4776092700, document=survey_csv_offline_file)
 # -4687975968
 # -4776092700 - id группы конференции
 async def admin_exit(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
