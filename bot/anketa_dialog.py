@@ -200,7 +200,7 @@ async def do_not_want_hotel_payment(cb: CallbackQuery, widget: Button, manager: 
 
 async def on_photo_sent(message: Message, widget: MessageInput, dialog_manager: DialogManager):
     print('on_photo_sent works')
-    foto_id = message.photo[-1].file_id  # Берем последнее фото (наибольшего размера)
+    foto_id = message.photo[-1].file_id
     dialog_manager.dialog_data['foto_id'] = foto_id
     await message.delete()
     await dialog_manager.next()

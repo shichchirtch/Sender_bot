@@ -51,11 +51,11 @@ async def get_skolko(dialog_manager: DialogManager, event_from_user: User, *args
 async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
     admin_msg = msg.text.strip()
     admin_selector = admin_msg[0]
-    print('accepet_admin_message works')
-    print('admin selector = ', admin_selector, type(admin_selector))
+    # print('accepet_admin_message works')
+    # print('admin selector = ', admin_selector, type(admin_selector))
     counter = 0
     users_db  = await dp.storage.get_data(key=bot_storage_key)
-    print('user_db = ', users_db)
+    # print('user_db = ', users_db)
     if admin_selector not in '12345678':
         rest_admin_msg = admin_msg
         for user in users_db.keys():
@@ -65,9 +65,9 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
     else:
         rest_admin_msg = admin_msg[1:]
         for user in users_db.keys():
-            print('user = ', user)
+            # print('user = ', user)
             selector = await return_selector(int(user))
-            print('user_selector = ', selector)
+            # print('user_selector = ', selector)
             if selector == admin_selector:
                 await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
                 counter += 1
