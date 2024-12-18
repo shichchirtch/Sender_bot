@@ -39,8 +39,10 @@ async def send_survey_file(callback: CallbackQuery, widget: Button, dialog_manag
     if os.path.exists(SURVEY_CSV_FILE_PATH_OFFLINE):
         survey_csv_offline_file = FSInputFile(SURVEY_CSV_FILE_PATH_OFFLINE)
         await callback.bot.send_document(chat_id=-4776092700, document=survey_csv_offline_file)
-
+# -4687975968
+# -4776092700 - id группы конференции
 async def admin_exit(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    await callback.message.answer('Admin OUT')
     await dialog_manager.done()
 
 async def get_skolko(dialog_manager: DialogManager, event_from_user: User, *args, **kwargs):

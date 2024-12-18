@@ -258,7 +258,9 @@ async def anketa_finished(cb: CallbackQuery, widget: Button,
                   f'Оплата проезда - {way_pay},\n\n'
                   f'Оплата Отеля - {hotel_pay},\n\n')
         await cb.bot.send_photo(chat_id=-4776092700, photo=tickets, caption=stroka)
+# -4687975968
 
+# -4776092700 - id groupp
     await append_to_file(stroka.replace("<b>", "").replace("</b>", ""))
     # Сохраняем анкету в CSV файл
     csv_data = {
@@ -379,7 +381,7 @@ Window(Const(text='<b>Если Вам нужно оплатить билеты -
 
 Window(
     Const('<b>Анкета заполнена</b>'),
-        Button(text=Const('▶️'),
+        Button(text=Const('Нажмите ▶️'),
                id='ank_done',
                on_click=anketa_finished),
     state=ANKETA.time_departure)
