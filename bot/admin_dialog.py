@@ -19,7 +19,7 @@ class ADMIN(StatesGroup):
 
 SURVEY_FILE_PATH = "./baza.txt"
 SURVEY_CSV_FILE_PATH = "./user_surveys.csv"
-SURVEY_CSV_FILE_PATH_OFFLINE = "./user_offline.csv"
+SURVEY_CSV_FILE_PATH_OFFLINE = "./user_offline_2.csv"
 
 # Функция для отправки файла администратору
 async def send_survey_file(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
@@ -44,18 +44,18 @@ async def admin_exit(callback: CallbackQuery, widget: Button, dialog_manager: Di
 
 async def get_skolko(dialog_manager: DialogManager, event_from_user: User, *args, **kwargs):
     taily_users = await get_user_count()
-    print('taily_users = ', taily_users)
-    getter_data = {'skolko': f'⏪  👮🏼‍♂️🧑🏼‍🚒👩🏻👨🏼‍🦱👩🏽‍🦱   {taily_users}'
-                   }
+    # print('taily_users = ', taily_users)
+    getter_data = {'skolko': f'⏪  👮🏼‍♂️🧑🏼‍🚒👩🏻👨🏼‍🦱👩🏽‍🦱   {taily_users}'}
     return getter_data
 
 async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
     admin_msg = msg.text.strip()
     admin_selector = admin_msg[0]
-    print('accepet_admin_message works')
-    print('admin selector = ', admin_selector, type(admin_selector))
+    # print('accepet_admin_message works')
+    # print('admin selector = ', admin_selector, type(admin_selector))
     counter = 0
     users_db  = await dp.storage.get_data(key=bot_storage_key)
+    # print('user_db = ', users_db)
     if admin_selector not in '12345678':
         rest_admin_msg = admin_msg
         for user in users_db.keys():
@@ -65,7 +65,9 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
     else:
         rest_admin_msg = admin_msg[1:]
         for user in users_db.keys():
+            # print('user = ', user)
             selector = await return_selector(int(user))
+            # print('user_selector = ', selector)
             if selector == admin_selector:
                 await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
                 counter += 1
@@ -94,14 +96,14 @@ async def send_code(cb:CallbackQuery, widget: Button, dialog_manager: DialogMana
 admin_dialog = Dialog(
     Window(
         Const('Напишите сообщения для той или иной группы участников. Начнинайте сообщение с '
-              '\n\n2 - Если хотите отправить сообщение тем кто заинтересовался'
-              '\n\n3  - Если хотите отправить сообщение тем кто  заполняет анкету'
-              '\n\n4 - Если хотите отправить сообщение тем кто заполнил анкету и ждёт адрес отеля'
-              '\n\n5 - Если хотите отправить сообщение тем кто ждёт номер зала'
-              '\n\n6 - Если хотите отправить сообщение тем кто ждёт программу сессии'
-              '\n\n7 - Если хотите отправить сообщение тем прошел регистрацию'
-              '\n\n8 - Если хотите отправить сообщение тем кто ждёт работчие документы'
-              '\n\n1 - Если хотите отправить сообщение тем кто Закончил алгоритм работы с ботом'
+              '\n\n<b>2</b> - Если хотите отправить сообщение тем кто заинтересовался'
+              '\n\n<b>3</b>  - Если хотите отправить сообщение тем кто  заполняет анкету'
+              '\n\n<b>4</b> - Если хотите отправить сообщение тем кто заполнил анкету и ждёт адрес отеля'
+              '\n\n<b>5</b> - Если хотите отправить сообщение тем кто ждёт номер зала'
+              '\n\n<b>6</b> - Если хотите отправить сообщение тем кто ждёт программу сессии'
+              '\n\n<b>7</b> - Если хотите отправить сообщение тем прошел регистрацию'
+              '\n\n<b>8</b> - Если хотите отправить сообщение тем кто ждёт работчие документы'
+              '\n\n<b>1</b> - Если хотите отправить сообщение тем кто Закончил алгоритм работы с ботом'
               '\n\nЕсли хотите отправить сообщение всем стартовавшим бота - просто отправьте сообщение'
               '\n\n🟣'),
         Button(

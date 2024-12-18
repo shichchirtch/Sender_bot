@@ -19,7 +19,7 @@ import re
 # Путь к файлу для хранения анкет
 SURVEY_FILE_PATH = "./baza.txt"
 SURVEY_CSV_FILE_PATH = "./user_surveys.csv"
-SURVEY_CSV_FILE_PATH_OFFLINE = "./user_offline.csv"
+SURVEY_CSV_FILE_PATH_OFFLINE = "./user_offline_2.csv"
 
 
 class ANKETA(StatesGroup):
@@ -202,7 +202,6 @@ async def on_photo_sent(message: Message, widget: MessageInput, dialog_manager: 
     print('on_photo_sent works')
     foto_id = message.photo[-1].file_id  # Берем последнее фото (наибольшего размера)
     dialog_manager.dialog_data['foto_id'] = foto_id
-    await message.bot.send_photo(chat_id=-4776092700, photo=foto_id)
     await message.delete()
     await dialog_manager.next()
 
@@ -219,11 +218,12 @@ async def go_to_arriving_time(cb: CallbackQuery, widget: Button, manager: Dialog
     await manager.next()
 
 
-async def anketa_finished(message: Message, widget: ManagedTextInput,
+async def anketa_finished(cb: CallbackQuery, widget: Button,
                           manager: DialogManager, *args, **kwargs):
     print('anketa_finished works')
     bot_dict = await dp.storage.get_data(key=bot_storage_key)  # Получаю словарь бота
-    us_dict = bot_dict[str(message.from_user.id)]  # Получаю базу напоминаний юзера
+    us_dict = bot_dict[str(cb.from_user.id)]  # Получаю базу напоминаний юзера
+    print('226 us_dict = ', us_dict)
     # await state.set_data({'fio': '', 'way_pay': '', 'hotel_pay': '', 'tickets': '', 'arrive': '' })
 
     fio = us_dict['fio'] = manager.dialog_data['fio']
@@ -232,32 +232,32 @@ async def anketa_finished(message: Message, widget: ManagedTextInput,
     way_pay = us_dict['way_pay'] = manager.dialog_data['way_pay']
     hotel_pay = us_dict['hotel_pay'] = manager.dialog_data['hotel_pay']
     tickets = us_dict['tickets'] = manager.dialog_data['foto_id']
-    arrival = us_dict['arrival'] = manager.dialog_data['arrival']
-    departure = us_dict['departure'] = message.text.strip()
+    # arrival = us_dict['arrival'] = manager.dialog_data['arrival']
+    # departure = us_dict['departure'] = message.text.strip()
     # way_pay, hotel_pay, tickets, arrival, departure
-    await dp.storage.update_data(key=bot_storage_key, data=us_dict)
+    # bot_dict[user_id][str_za_chas] = pseudo_class
+    await dp.storage.update_data(key=bot_storage_key, data=bot_dict)
+    # bot_dict = await dp.storage.get_data(key=bot_storage_key)
+
+    # print('bot_dict = ', bot_dict)
 
     if not tickets:
-        stroka = (f'<b>Анкета Юзера </b> {message.from_user.first_name}, {message.from_user.last_name}'
+        stroka = (f'<b>Анкета Юзера </b> {cb.from_user.first_name}, {cb.from_user.last_name}'
                   f'\n\nФИО - {fio},\n\n'
                   f'<b>Организация</b> - {org},\n\n'
                   f'<b>Online-Offline</b> - {line},\n\n'
                   f'<b>Оплата проезда</b> - {way_pay},\n\n'
-                  f'<b>Оплата Отеля</b> - {hotel_pay},\n\n'
-                  f'<b>Время прибытия</b> - {arrival}\n\n'
-                  f'<b>Время отъезда</b> - {departure}\n\n')
-        await message.bot.send_message(chat_id=-4776092700, text=stroka)
+                  f'<b>Оплата Отеля</b> - {hotel_pay},\n\n')
+        await cb.bot.send_message(chat_id=-4776092700, text=stroka)
     else:
-        stroka = (f'Анкета Юзера {message.from_user.first_name}, {message.from_user.last_name}'
+        stroka = (f'Анкета Юзера {cb.from_user.first_name}, {cb.from_user.last_name}'
                   f'\n\nФИО - {fio},\n\n'
                   f'<b>Организация</b> - {org},\n\n'
                   f'<b>Online-Offline</b> - {line},\n\n'
                   f'<b>Фото билетов отпралвены</b>,\n\n'
                   f'Оплата проезда - {way_pay},\n\n'
-                  f'Оплата Отеля - {hotel_pay},\n\n'
-                  f'Время прибытия - {arrival},\n\n'
-                  f'<b>Время отъезда</b> - {departure}\n\n')
-        await message.bot.send_photo(chat_id=-4776092700, photo=tickets, caption=stroka)
+                  f'Оплата Отеля - {hotel_pay},\n\n')
+        await cb.bot.send_photo(chat_id=-4776092700, photo=tickets, caption=stroka)
 
     await append_to_file(stroka.replace("<b>", "").replace("</b>", ""))
     # Сохраняем анкету в CSV файл
@@ -267,14 +267,12 @@ async def anketa_finished(message: Message, widget: ManagedTextInput,
         "way_pay":way_pay,
         "hotel_pay":hotel_pay,
         "tickets":tickets,
-        "arrival":arrival,
-        "departure":departure
     }
     await append_offline_to_csv(csv_data)
-    await set_selector(message.from_user.id,'wait')
-    await insert_anketa(message.from_user.id, stroka)
-    await insert_done(message.from_user.id)
-    await message.answer(
+    await set_selector(cb.from_user.id,'wait')
+    await insert_anketa(cb.from_user.id, stroka)
+    await insert_done(cb.from_user.id)
+    await cb.message.answer(
         'Спасибо, что заполнили анкету, оставайтесь со мной на связи. За дополнительной информацией можете обратиться к...')
     await manager.start(BASE_DIAL.wait)
 
@@ -305,7 +303,7 @@ anketa_dialog = Dialog(
 
     Window(
         Const(
-            '<b>Введите название организации от которой едите, или отпавтьте <i>"нет"</i>, если участвуете как независимый участник</b>'),
+            '<b>Введите название организации от которой едете, или отправьте <i>"нет"</i>, если участвуете как независимый участник</b>'),
         TextInput(
             id='org_input',
             type_factory=time_check,
@@ -362,6 +360,9 @@ Window(
                id='no_pay_hotel',
                on_click=do_not_want_hotel_payment))),
     state=ANKETA.hotel_expensions),
+
+
+
 Window(Const(text='<b>Если Вам нужно оплатить билеты - отправьте, пожалуйста, мне фото ваших билетов</b>'),
        MessageInput(
            func=on_photo_sent,
@@ -375,40 +376,48 @@ Window(Const(text='<b>Если Вам нужно оплатить билеты -
               id='tickets',
               on_click=go_to_arriving_time),
        state=ANKETA.invoice),
-Window(Const('<b>Отправьте мне время вашего прибытия в Берлин</b>'),
-       TextInput(
-           id='id_input_arrival',
-           type_factory=time_check,
-           on_success=arrival_time,
-           on_error=error_check_time,
-       ),
-       MessageInput(
-           func=message_not_text_handler,
-           content_types=ContentType.ANY,),
-       Back(
-           Const('◀️'),
-           id='back_7'),
-       state=ANKETA.time_arriving
-       ),
-Window(Const('<b>Отправьте мне время вашего отъезда из Берлина</b>'),
-       TextInput(
-           id='id_input_departure',
-           type_factory=time_check,
-           on_success=anketa_finished,
-           on_error=error_check_time,
-       ),
-       MessageInput(
-           func=message_not_text_handler,
-           content_types=ContentType.ANY,
-       ),
-       Back(
-           Const('◀️'),
-           id='back_8'
-       ),
-       state=ANKETA.time_departure
-       ),
 
+Window(
+    Const('<b>Анкета заполнена</b>'),
+        Button(text=Const('▶️'),
+               id='ank_done',
+               on_click=anketa_finished),
+    state=ANKETA.time_departure)
 )
+# Window(Const('<b>Отправьте мне время вашего прибытия в Берлин</b>'),
+#        TextInput(
+#            id='id_input_arrival',
+#            type_factory=time_check,
+#            on_success=arrival_time,
+#            on_error=error_check_time,
+#        ),
+#        MessageInput(
+#            func=message_not_text_handler,
+#            content_types=ContentType.ANY,),
+#        Back(
+#            Const('◀️'),
+#            id='back_7'),
+#        state=ANKETA.time_arriving
+#        ),
+# Window(Const('<b>Отправьте мне время вашего отъезда из Берлина</b>'),
+#        TextInput(
+#            id='id_input_departure',
+#            type_factory=time_check,
+#            on_success=anketa_finished,
+#            on_error=error_check_time,
+#        ),
+#        MessageInput(
+#            func=message_not_text_handler,
+#            content_types=ContentType.ANY,
+#        ),
+#        Back(
+#            Const('◀️'),
+#            id='back_8'
+#        ),
+#        state=ANKETA.time_departure
+#        ),
+#
+# )
 
 # Window(  # Окно принимающее содержание напоминания и форммирующее ЭК Mahnung
 #         Format(text='{data_mahnung}'),  # Отправьте мне название напоминания

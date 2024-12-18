@@ -55,7 +55,7 @@ async def go_to_third(callback: CallbackQuery, widget: Button, dialog_manager: D
 
 
 async def go_to_plan(msg: Message, widget: ManagedTextInput, dialog_manager: DialogManager, *args, **kwargs):
-    await set_selector(msg.from_user.id, '5')
+    await set_selector(msg.from_user.id, '4')
     await msg.answer('Отлично !  🔥')
     dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
     await dialog_manager.next()
