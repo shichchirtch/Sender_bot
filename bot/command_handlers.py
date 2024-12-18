@@ -19,7 +19,7 @@ async def command_start_process(message:Message, dialog_manager: DialogManager, 
     user_name = message.from_user.first_name
     user_id = message.from_user.id
     if not await check_user_in_table(user_id):
-        print('start if works')
+        print('start if works', user_id)
         await insert_new_user_in_table(user_id, user_name)
         await state.set_data({'line':'', 'selector':'1','anketa':'','done':False})
         bot_dict = await dp.storage.get_data(key=bot_storage_key)  # Получаю словарь бота

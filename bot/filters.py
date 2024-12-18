@@ -8,7 +8,7 @@ from aiogram.filters import BaseFilter
 
 class IS_ADMIN(BaseFilter):
     async def __call__(self, message: Message):
-        if message.from_user.id in [6685637602, 419531502, 116486736]:
+        if message.from_user.id in [6685637602, 419531502, 116486736, 6831521683]:
             return True
         return False
 

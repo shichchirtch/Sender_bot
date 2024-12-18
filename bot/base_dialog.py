@@ -24,9 +24,9 @@ async def filled_anketa_getter(dialog_manager: DialogManager, event_from_user: U
         anketa = True
     elif len(anketa) > 4:
         anketa = False
-    print('anketa = ', anketa)
+    # print('anketa = ', anketa)
     done = await return_done(event_from_user.id)
-    print('done = ', done)
+    # print('done = ', done)
     getter_data = {'anketa': anketa, 'done': done}
     return getter_data
 

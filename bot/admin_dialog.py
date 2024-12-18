@@ -1,7 +1,7 @@
 from aiogram_dialog import Dialog, Window
 from bot_instance import dp, bot_storage_key
 from aiogram_dialog.widgets.text import Const, Format
-from aiogram_dialog.widgets.kbd import Button, Next
+from aiogram_dialog.widgets.kbd import Button, Next, Row
 from aiogram_dialog.widgets.input import  MessageInput
 from aiogram.types import CallbackQuery, Message, FSInputFile, User
 from aiogram_dialog import DialogManager
@@ -10,6 +10,7 @@ from aiogram.types import ContentType
 import asyncio
 import os
 from postgres_functions import return_selector, get_user_count
+import pickle
 
 class ADMIN(StatesGroup):
     first = State()
@@ -45,7 +46,11 @@ async def admin_exit(callback: CallbackQuery, widget: Button, dialog_manager: Di
 async def get_skolko(dialog_manager: DialogManager, event_from_user: User, *args, **kwargs):
     taily_users = await get_user_count()
     # print('taily_users = ', taily_users)
-    getter_data = {'skolko': f'⏪  👮🏼‍♂️🧑🏼‍🚒👩🏻👨🏼‍🦱👩🏽‍🦱   {taily_users}'}
+    if event_from_user.id == 6685637602:
+        admin = True
+    else:
+        admin = False
+    getter_data = {'skolko': f'⏪  👮🏼‍♂️🧑🏼‍🚒👩🏻👨🏼‍🦱👩🏽‍🦱   {taily_users}', 'admin':admin}
     return getter_data
 
 async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
@@ -93,6 +98,22 @@ async def send_code(cb:CallbackQuery, widget: Button, dialog_manager: DialogMana
     await dialog_manager.back()
 
 
+async def button_zagruz_db(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    with open('save_db.pkl', 'rb') as file:
+        recover_base = pickle.load(file)
+        await dp.storage.set_data(key=bot_storage_key, data=recover_base)
+    await callback.message.answer('База данных успешно загружена !')
+    await dialog_manager.done()  # выход из режима админа
+
+
+async def button_save_db(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    bot_dict = await dp.storage.get_data(key=bot_storage_key)  # Получаю словарь бота
+    with open('save_db.pkl', 'wb') as file:
+        pickle.dump(bot_dict, file)
+    await callback.message.answer('База данных успешно записана !')
+    await dialog_manager.done()  # выход из режима админа
+
+
 admin_dialog = Dialog(
     Window(
         Const('Напишите сообщения для той или иной группы участников. Начнинайте сообщение с '
@@ -120,6 +141,17 @@ admin_dialog = Dialog(
             text=Format('{skolko}'),
             id='exit',
             on_click=admin_exit),
+        Row(
+            Button(
+                text=Const('Загрузить БД'),
+                id='zagruz_bd',
+                on_click=button_zagruz_db),
+            Button(
+                text=Const('Сохранить БД'),
+                id='save_bd',
+                on_click=button_save_db),
+            when='admin'
+            ),
 
         Next(
             text=Const('Написать сообщение'),
@@ -135,12 +167,6 @@ admin_dialog = Dialog(
         ),
         state=ADMIN.accept_msg
     ),
-    # Window(
-    #     Const('Отправить сообщуху'),
-    #     Button(
-    #         text=Const('Отправить сообщение юзерам'),
-    #         id='send_msg',
-    #         on_click=sending_msg),
-    #     state=ADMIN.admin_send_msg)
+
 
 )
