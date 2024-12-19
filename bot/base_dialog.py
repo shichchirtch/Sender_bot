@@ -2,14 +2,14 @@ from aiogram_dialog import Dialog, Window
 from aiogram.types import CallbackQuery, User, Message, ContentType
 from aiogram_dialog.widgets.text import Const
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.kbd import Button, Start, Group, Row, Next
+from aiogram_dialog.widgets.kbd import Button, Start, Group, Row
 from aiogram_dialog.api.entities.modes import ShowMode, StartMode
 from aiogram_dialog.widgets.input import ManagedTextInput, TextInput
 import asyncio
 from aiogram_dialog.widgets.input import MessageInput
 from anketa_dialog import ANKETA
 from bot_instance import START_DIAL, BASE_DIAL
-from postgres_functions import return_anketa, return_done, set_selector, insert_done
+from postgres_functions import return_anketa, return_done, set_selector
 
 
 def code_check(code: str) -> str:
@@ -187,8 +187,9 @@ base_dialog = Dialog(
             Button(text=Const('Ещё Нет'),
                    id='bd_hotel_adress_else',
                    on_click=we_are_waiting),
-            Next(text=Const('▶️'),
-                 id='Hotel_Next'),
+            Button(text=Const('▶️'),
+                    id='Hotel_Next',
+                   on_click=go_to_zal),
             Button(text=Const('Получил'),
                    id='bd_hotel_adress_yes',
                    on_click=go_to_zal),

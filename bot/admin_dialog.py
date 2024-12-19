@@ -11,6 +11,7 @@ import asyncio
 import os
 from postgres_functions import return_selector, get_user_count
 import pickle
+from aiogram_dialog.api.entities.modes import ShowMode
 
 class ADMIN(StatesGroup):
     first = State()
@@ -97,7 +98,9 @@ async def send_code(cb:CallbackQuery, widget: Button, dialog_manager: DialogMana
             await asyncio.sleep(0.2)
 
     await cb.message.answer(f'Теперь заполнившие анкету могут получать сообщения\n\nЧисло отпраленных сообщений = {counter}')
-    await dialog_manager.back()
+    dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
+    await dialog_manager.done()
+
 
 
 async def button_zagruz_db(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
