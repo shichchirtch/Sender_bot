@@ -9,7 +9,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ContentType
 import asyncio
 import os
-from postgres_functions import return_selector, get_user_count
+from postgres_functions import return_selector, get_user_count, return_line
 import pickle
 from aiogram_dialog.api.entities.modes import ShowMode
 
@@ -31,15 +31,15 @@ async def send_survey_file(callback: CallbackQuery, widget: Button, dialog_manag
         return
     # Отправляем файл администратору
     survey_file = FSInputFile(SURVEY_FILE_PATH)
-    await callback.bot.send_document(chat_id=-4776092700, document=survey_file)
+    await callback.bot.send_document(chat_id=-4776092700 , document=survey_file)
 
     if os.path.exists(SURVEY_CSV_FILE_PATH):
         survey_csv_file = FSInputFile(SURVEY_CSV_FILE_PATH)
-        await callback.bot.send_document(chat_id=-4776092700,document=survey_csv_file)
+        await callback.bot.send_document(chat_id=-4776092700 , document=survey_csv_file)
 
     if os.path.exists(SURVEY_CSV_FILE_PATH_OFFLINE):
         survey_csv_offline_file = FSInputFile(SURVEY_CSV_FILE_PATH_OFFLINE)
-        await callback.bot.send_document(chat_id=-4776092700, document=survey_csv_offline_file)
+        await callback.bot.send_document(chat_id=-4776092700 , document=survey_csv_offline_file)
 # -4687975968
 # -4776092700 - id группы конференции
 async def admin_exit(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
@@ -63,13 +63,25 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
     # print('admin selector = ', admin_selector, type(admin_selector))
     counter = 0
     users_db  = await dp.storage.get_data(key=bot_storage_key)
+    if admin_selector == '9':
+        rest_admin_msg = admin_msg[1:]
+        for user in users_db.keys():
+            # print('user = ', user)
+            line = await return_line(int(user))
+            # print('user_selector = ', selector)
+            if line == 'online':
+                await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
+                counter += 1
+                await asyncio.sleep(0.2)
+
     # print('user_db = ', users_db)
-    if admin_selector not in '12345678':
+    elif admin_selector not in '12345678':
         rest_admin_msg = admin_msg
         for user in users_db.keys():
             await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
             counter+=1
             await asyncio.sleep(0.2)
+
     else:
         rest_admin_msg = admin_msg[1:]
         for user in users_db.keys():

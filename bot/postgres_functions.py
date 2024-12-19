@@ -69,6 +69,12 @@ async def return_selector(user_id:int):
         needed_data = query.scalar()
         return needed_data.selector
 
+async def return_line(user_id:int):
+    async with session_marker() as session:
+        query = await session.execute(select(User).filter(User.tg_us_id == user_id))
+        needed_data = query.scalar()
+        return needed_data.line
+
 
 
 async def get_user_count():
@@ -77,6 +83,13 @@ async def get_user_count():
         result = await session.execute(select(func.count(User.index)))
         count = result.scalar()
         return count
+
+# async def get_online_count():
+#     '''Функция считает общее количество запустивших бота'''
+#     async with session_marker() as session:
+#         result = await session.execute(select(func.count(User.index)))
+#         count = result.scalar()
+#         return count
 
 
 
