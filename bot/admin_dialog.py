@@ -56,6 +56,8 @@ async def get_skolko(dialog_manager: DialogManager, event_from_user: User, *args
     getter_data = {'skolko': f'⏪  👮🏼‍♂️🧑🏼‍🚒👩🏻👨🏼‍🦱👩🏽‍🦱   {taily_users}', 'admin':admin}
     return getter_data
 
+# 146812561
+
 async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
     admin_msg = msg.text.strip()
     admin_selector = admin_msg[0]
@@ -78,9 +80,13 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
     elif admin_selector not in '12345678':
         rest_admin_msg = admin_msg
         for user in users_db.keys():
-            await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
-            counter+=1
-            await asyncio.sleep(0.2)
+            if str(user) != '146812561':
+                await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+                counter+=1
+                await asyncio.sleep(0.2)
+            else:
+                print('\n\n\nСообщение юзеру 146812561 - не отправлено')
+                pass
 
     else:
         rest_admin_msg = admin_msg[1:]
@@ -89,9 +95,13 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
             selector = await return_selector(int(user))
             # print('user_selector = ', selector)
             if selector == admin_selector:
-                await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
-                counter += 1
-                await asyncio.sleep(0.2)
+                if str(user) != '146812561':
+                    await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+                    counter += 1
+                    await asyncio.sleep(0.2)
+                else:
+                    print('\n\n\nСообщение юзеру 146812561 - не отправлено')
+                    pass
 
     await msg.answer(f'Рассылка завершена\n\nЧисло отпраленных сообщений = {counter}')
     await dialog_manager.back()
