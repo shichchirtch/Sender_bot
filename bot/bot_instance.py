@@ -30,10 +30,13 @@ class BASE_DIAL(StatesGroup):
     five = State()
     six = State()
     wait = State()
+    post_wait = State()
     hotel_adres = State()
     zal_number = State()
 
 class HELP_DIAL(StatesGroup):
     erst = State()
+
+ban_list = []
 
 

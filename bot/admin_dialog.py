@@ -1,5 +1,5 @@
 from aiogram_dialog import Dialog, Window
-from bot_instance import dp, bot_storage_key
+from bot_instance import dp, bot_storage_key, ban_list
 from aiogram_dialog.widgets.text import Const, Format
 from aiogram_dialog.widgets.kbd import Button, Next, Row
 from aiogram_dialog.widgets.input import  MessageInput
@@ -9,7 +9,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ContentType
 import asyncio
 import os
-from postgres_functions import return_selector, get_user_count, return_line
+from postgres_functions import return_selector, get_user_count, return_line, set_selector
 import pickle
 from aiogram_dialog.api.entities.modes import ShowMode
 
@@ -60,51 +60,60 @@ async def get_skolko(dialog_manager: DialogManager, event_from_user: User, *args
 
 async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
     admin_msg = msg.text.strip()
-    admin_selector = admin_msg[0]
-    # print('accepet_admin_message works')
-    # print('admin selector = ', admin_selector, type(admin_selector))
-    counter = 0
-    users_db  = await dp.storage.get_data(key=bot_storage_key)
-    if admin_selector == '9':
-        rest_admin_msg = admin_msg[1:]
-        for user in users_db.keys():
-            # print('user = ', user)
-            line = await return_line(int(user))
-            # print('user_selector = ', selector)
-            if line == 'online':
-                await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
-                counter += 1
-                await asyncio.sleep(0.2)
-
-    # print('user_db = ', users_db)
-    elif admin_selector not in '12345678':
-        rest_admin_msg = admin_msg
-        for user in users_db.keys():
-            if str(user) != '146812561':
-                await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
-                counter+=1
-                await asyncio.sleep(0.2)
-            else:
-                print('\n\n\nСообщение юзеру 146812561 - не отправлено')
-                pass
-
+    if admin_msg.startswith('ban'):
+        id_user_baned = int(admin_msg.split()[1])
+        ban_list.append(id_user_baned)
+        await msg.answer(f'{id_user_baned} забанен')
+        await dialog_manager.back()
     else:
-        rest_admin_msg = admin_msg[1:]
-        for user in users_db.keys():
-            # print('user = ', user)
-            selector = await return_selector(int(user))
-            # print('user_selector = ', selector)
-            if selector == admin_selector:
-                if str(user) != '146812561':
-                    await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+        admin_selector = admin_msg[0]
+        # print('accepet_admin_message works')
+        # print('admin selector = ', admin_selector, type(admin_selector))
+        counter = 0
+        users_db  = await dp.storage.get_data(key=bot_storage_key)
+        if admin_selector == '9':
+            rest_admin_msg = admin_msg[1:]
+            for user in users_db.keys():
+                # print('user = ', user)
+                line = await return_line(int(user))
+                # print('user_selector = ', selector)
+                if line == 'online':
+                    await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
                     counter += 1
                     await asyncio.sleep(0.2)
+
+        # print('user_db = ', users_db)
+        elif admin_selector not in '12345678':
+            rest_admin_msg = admin_msg
+            for user in users_db.keys():
+                if int(user) not in  ban_list:
+                    await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+                    counter+=1
+                    await asyncio.sleep(0.2)
                 else:
-                    print('\n\n\nСообщение юзеру 146812561 - не отправлено')
+                    print(f'\n\n\nСообщение юзеру {user} - не отправлено')
                     pass
 
-    await msg.answer(f'Рассылка завершена\n\nЧисло отпраленных сообщений = {counter}')
-    await dialog_manager.back()
+        else:
+            rest_admin_msg = admin_msg[1:]
+            for user in users_db.keys():
+                # print('user = ', user)
+                selector = await return_selector(int(user))
+                # print('user_selector = ', selector)
+                if selector == admin_selector:
+                    if int(user) not in ban_list:
+                        await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+                        if selector in '4568':
+                            s_selector = selector + 's'
+                            await set_selector(int(user), s_selector)
+                        counter += 1
+                        await asyncio.sleep(0.2)
+                    else:
+                        print(f'\n\n\nСообщение юзеру {user} - не отправлено')
+                        pass
+
+        await msg.answer(f'Рассылка завершена\n\nЧисло отпраленных сообщений = {counter}')
+        await dialog_manager.back()
 
 async def send_code(cb:CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
     # print('send_code works')
@@ -151,8 +160,10 @@ admin_dialog = Dialog(
               '\n\n<b>6</b> - Если хотите отправить сообщение тем кто ждёт программу сессии'
               '\n\n<b>7</b> - Если хотите отправить сообщение тем прошел регистрацию'
               '\n\n<b>8</b> - Если хотите отправить сообщение тем кто ждёт работчие документы'
+              '\n\n<b>9</b> - Если хотите отправить сообщение тем кто участвует online'
               '\n\n<b>1</b> - Если хотите отправить сообщение тем кто Закончил алгоритм работы с ботом'
               '\n\nЕсли хотите отправить сообщение всем стартовавшим бота - просто отправьте сообщение'
+              '\n\nЕсли хотите внести кого-то в бан - отправьте сообщение ban telegram_user_id'
               '\n\n🟣'),
         Button(
             Const('Загрузить файл с базой анкет'),

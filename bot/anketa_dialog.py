@@ -96,8 +96,7 @@ async def correct_fio_handler(message: Message, widget: ManagedTextInput,
     print('fio = ', message.text)
     fio = message.text.strip()
     manager.dialog_data['fio'] = fio
-    selector = '3'
-    await set_selector(message.from_user.id, selector)
+    await set_selector(message.from_user.id, '3')
     manager.show_mode = ShowMode.SEND
     await message.delete()
     await manager.next()
@@ -108,7 +107,7 @@ async def go_to_3_wind(message: Message, widget: ManagedTextInput,
     """Хэндлер принимает название организации"""
     org = message.text.strip()
     manager.dialog_data['org'] = org
-    manager.show_mode = ShowMode.SEND
+    manager.show_mode = ShowMode.DELETE_AND_SEND
     await message.delete()
     await manager.next()
 
@@ -162,6 +161,7 @@ async def online_handler(cb: CallbackQuery, widget: Button, manager: DialogManag
     await insert_anketa(cb.from_user.id, stroka)
     await cb.message.answer(
         'Спасибо, что заполнили анкету, оставайтесь со мной на связи. Я пришлю вам сообщение с информацией о месте проведения конференции ближе к дате концеренции 21.12.2024.')
+    await set_selector(cb.from_user.id, '8')
     manager.show_mode = ShowMode.SEND
     await manager.start(BASE_DIAL.five)
 
@@ -170,31 +170,31 @@ async def offline_handler(cb: CallbackQuery, widget: Button, manager: DialogMana
     manager.dialog_data['line'] = 'Лично приеду'
     print('offline handler works')
 
-    manager.show_mode = ShowMode.SEND
+    # manager.show_mode = ShowMode.DELETE_AND_SEND
     await manager.next()
 
 
 async def want_way_payment(cb: CallbackQuery, widget: Button, manager: DialogManager, *args, **kwargs):
     manager.dialog_data['way_pay'] = 'Да'
-    manager.show_mode = ShowMode.SEND
+    # manager.show_mode = ShowMode.DELETE_AND_SEND
     await manager.next()
 
 
 async def do_not_want_way_payment(cb: CallbackQuery, widget: Button, manager: DialogManager, *args, **kwargs):
     manager.dialog_data['way_pay'] = 'Нет'
-    manager.show_mode = ShowMode.SEND
+    # manager.show_mode = ShowMode.DELETE_AND_SEND
     await manager.next()
 
 
 async def want_hotel_payment(cb: CallbackQuery, widget: Button, manager: DialogManager, *args, **kwargs):
     manager.dialog_data['hotel_pay'] = 'Да'
-    manager.show_mode = ShowMode.SEND
+    # manager.show_mode = ShowMode.DELETE_AND_SEND
     await manager.next()
 
 
 async def do_not_want_hotel_payment(cb: CallbackQuery, widget: Button, manager: DialogManager, *args, **kwargs):
     manager.dialog_data['hotel_pay'] = 'Нет'
-    manager.show_mode = ShowMode.SEND
+    # manager.show_mode = ShowMode.DELETE_AND_SEND
     await manager.next()
 
 
@@ -232,15 +232,7 @@ async def anketa_finished(cb: CallbackQuery, widget: Button,
     way_pay = us_dict['way_pay'] = manager.dialog_data['way_pay']
     hotel_pay = us_dict['hotel_pay'] = manager.dialog_data['hotel_pay']
     tickets = us_dict['tickets'] = manager.dialog_data['foto_id']
-    # arrival = us_dict['arrival'] = manager.dialog_data['arrival']
-    # departure = us_dict['departure'] = message.text.strip()
-    # way_pay, hotel_pay, tickets, arrival, departure
-    # bot_dict[user_id][str_za_chas] = pseudo_class
     await dp.storage.update_data(key=bot_storage_key, data=bot_dict)
-    # bot_dict = await dp.storage.get_data(key=bot_storage_key)
-
-    # print('bot_dict = ', bot_dict)
-
     if not tickets:
         stroka = (f'<b>Анкета Юзера </b> {cb.from_user.first_name}, {cb.from_user.last_name}'
                   f'\n\nФИО - {fio},\n\n'
@@ -271,12 +263,25 @@ async def anketa_finished(cb: CallbackQuery, widget: Button,
         "tickets":tickets,
     }
     await append_offline_to_csv(csv_data)
-    await set_selector(cb.from_user.id,'wait')
+
     await insert_anketa(cb.from_user.id, stroka)
     await insert_done(cb.from_user.id)
-    await cb.message.answer(
-        'Спасибо, что заполнили анкету, оставайтесь со мной на связи. За дополнительной информацией можете обратиться к...')
-    await manager.start(BASE_DIAL.wait)
+    if  hotel_pay != 'Нет':
+        await set_selector(cb.from_user.id, '4')
+        await cb.message.answer(
+            'Спасибо, что заполнили анкету, оставайтесь со мной на связи.')
+        await asyncio.sleep(0.5)
+        manager.show_mode = ShowMode.DELETE_AND_SEND
+        await manager.start(BASE_DIAL.hotel_adres)
+
+    else:
+        await set_selector(cb.from_user.id, '5')
+        await cb.message.answer(
+            'Спасибо, что заполнили анкету, оставайтесь со мной на связи.')
+        await asyncio.sleep(0.5)
+        manager.show_mode = ShowMode.DELETE_AND_SEND
+        await manager.start(BASE_DIAL.zal_number)
+
 
 
 async def error_check_time(message: Message, widget: ManagedTextInput, dialog_manager: DialogManager,
@@ -386,55 +391,3 @@ Window(
                on_click=anketa_finished),
     state=ANKETA.time_departure)
 )
-# Window(Const('<b>Отправьте мне время вашего прибытия в Берлин</b>'),
-#        TextInput(
-#            id='id_input_arrival',
-#            type_factory=time_check,
-#            on_success=arrival_time,
-#            on_error=error_check_time,
-#        ),
-#        MessageInput(
-#            func=message_not_text_handler,
-#            content_types=ContentType.ANY,),
-#        Back(
-#            Const('◀️'),
-#            id='back_7'),
-#        state=ANKETA.time_arriving
-#        ),
-# Window(Const('<b>Отправьте мне время вашего отъезда из Берлина</b>'),
-#        TextInput(
-#            id='id_input_departure',
-#            type_factory=time_check,
-#            on_success=anketa_finished,
-#            on_error=error_check_time,
-#        ),
-#        MessageInput(
-#            func=message_not_text_handler,
-#            content_types=ContentType.ANY,
-#        ),
-#        Back(
-#            Const('◀️'),
-#            id='back_8'
-#        ),
-#        state=ANKETA.time_departure
-#        ),
-#
-# )
-
-# Window(  # Окно принимающее содержание напоминания и форммирующее ЭК Mahnung
-#         Format(text='{data_mahnung}'),  # Отправьте мне название напоминания
-#         MessageInput(
-#             func=message_text_handler,
-#             content_types=ContentType.TEXT,
-#         ),
-#         MessageInput(
-#             func=on_photo_sent,
-#             content_types=ContentType.PHOTO,
-#         ),
-#         MessageInput(
-#             func=message_not_foto_handler,
-#             content_types=ContentType.ANY,
-#         ),
-#         state=WORK_WITH_SCHED.titel,
-#         getter=get_titel
-#     ),
