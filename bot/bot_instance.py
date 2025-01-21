@@ -37,6 +37,6 @@ class BASE_DIAL(StatesGroup):
 class HELP_DIAL(StatesGroup):
     erst = State()
 
-ban_list = []
+ban_list = [304463718, 7361946530, 146812561]
 
 

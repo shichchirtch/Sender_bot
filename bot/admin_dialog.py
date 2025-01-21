@@ -78,18 +78,24 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
                 line = await return_line(int(user))
                 # print('user_selector = ', selector)
                 if line == 'online':
-                    await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
-                    counter += 1
-                    await asyncio.sleep(0.2)
+                    try:
+                        await msg.bot.send_message(chat_id=user, text=rest_admin_msg)
+                        counter += 1
+                        await asyncio.sleep(0.2)
+                    except Exception as e:
+                        print(f'exeption {e} happend\n\n')
 
         # print('user_db = ', users_db)
         elif admin_selector not in '12345678':
             rest_admin_msg = admin_msg
             for user in users_db.keys():
-                if int(user) not in  ban_list:
-                    await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
-                    counter+=1
-                    await asyncio.sleep(0.2)
+                if int(user) not in ban_list:
+                    try:
+                        await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+                        counter+=1
+                        await asyncio.sleep(0.2)
+                    except Exception as e:
+                        print(f'exeption {e} happend\n\n')
                 else:
                     print(f'\n\n\nСообщение юзеру {user} - не отправлено')
                     pass
@@ -102,12 +108,15 @@ async def send_admin_message(msg:Message, widget: MessageInput, dialog_manager: 
                 # print('user_selector = ', selector)
                 if selector == admin_selector:
                     if int(user) not in ban_list:
-                        await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
-                        if selector in '4568':
-                            s_selector = selector + 's'
-                            await set_selector(int(user), s_selector)
-                        counter += 1
-                        await asyncio.sleep(0.2)
+                        try:
+                            await msg.bot.send_message(chat_id=int(user), text=rest_admin_msg)
+                            if selector in '4568':
+                                s_selector = selector + 's'
+                                await set_selector(int(user), s_selector)
+                            counter += 1
+                            await asyncio.sleep(0.2)
+                        except Exception as e:
+                            print(f'exeption {e} happend\n\n')
                     else:
                         print(f'\n\n\nСообщение юзеру {user} - не отправлено')
                         pass
@@ -124,9 +133,12 @@ async def send_code(cb:CallbackQuery, widget: Button, dialog_manager: DialogMana
         # print('user = ', user)
         selector = await return_selector(int(user))
         if selector == 'wait':
-            await cb.bot.send_message(chat_id=user, text='Отправьте мне код 2025')
-            counter+=1
-            await asyncio.sleep(0.2)
+            try:
+                await cb.bot.send_message(chat_id=user, text='Отправьте мне код 2025')
+                counter+=1
+                await asyncio.sleep(0.2)
+            except Exception as e:
+                print(f'exeption {e} happend\n\n')
 
     await cb.message.answer(f'Теперь заполнившие анкету могут получать сообщения\n\nЧисло отпраленных сообщений = {counter}')
     dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
@@ -205,6 +217,5 @@ admin_dialog = Dialog(
         ),
         state=ADMIN.accept_msg
     ),
-
-
 )
+
